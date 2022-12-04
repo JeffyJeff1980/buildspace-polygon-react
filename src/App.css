@@ -177,9 +177,22 @@ header{
   justify-content: space-between;
   justify-content: center;
   align-items: center;
-  padding-bottom: 30px;
-}
-.form-container{
+  padding-top: 20px;
+    padding-bottom: 30px;
+    }
+    .loading-container {
+      max-width: 100px;
+      max-height: 100px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      justify-content: center;
+      align-items: center;
+      padding-top: 20px;
+      padding-bottom: 30px;
+    }
+  
+    .form-container {
   display: flex;
   width: 100%;
   flex-direction: column;

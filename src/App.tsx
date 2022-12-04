@@ -1,7 +1,11 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ethers } from "ethers";
 import './App.css';
+import 'react-toastify/dist/ReactToastify.css';
+
+import { NetworkName, networks, OpenSeaLink, PolyscanLink } from './constants/networks';
+
 import twitterLogo from './assets/twitter-logo.svg';
 import polygonLogo from './assets/polygonlogo.png';
 import ethLogo from './assets/ethlogo.png';
@@ -9,8 +13,11 @@ import gmLogo from './assets/gm.jpg';
 import buildspaceLogo from './assets/buildspace.png';
 
 import contractAbi from './utils/contractABI.json';
-import { NetworkName, networks, OpenSeaLink, PolyscanLink } from './constants/networks';
 import UseNetworkConnectivity from './hooks/UseNetworkConnectivity';
+import { UseToasts } from './hooks/UseToasts';
+import { DotLoader } from 'react-spinners';
+import { ToastContainer } from 'react-toastify';
+
 
 export interface MintRecord {
   id: number;
@@ -36,6 +43,7 @@ const  App =  () =>  {
 	const [targetNetwork] = useState(NetworkName.PolygonMainnet);
 
 	const switchNetwork = UseNetworkConnectivity();
+	const { toastSuccess, toastError, toastInfo } = UseToasts();
 
 	const onHandleSetDomain = (e: React.ChangeEvent<HTMLInputElement>) => {
 		e.preventDefault();
@@ -45,6 +53,29 @@ const  App =  () =>  {
 	const onHandleSetRecord = (e: React.ChangeEvent<HTMLInputElement>) => {
 		e.preventDefault();
 		setRecord(e.target.value);
+	}
+
+	const onHandleCancelClick = () => {
+		setEditing(false);
+		setRecord('');
+		setDomain('');
+	}
+
+	// This will take us into edit mode and show us the edit buttons!
+	const onHandleEditRecord = (name: string) => {
+		setEditing(true);
+		setDomain(name);
+	}
+
+	const onHandleMintClick = () => {
+		setLoading(true);
+		mintDomain();
+	};
+
+	const onHandleUpdateDomainClick = () => {
+		debugger;
+		setLoading(true);
+		updateDomain();
 	}
 
 	// Mint domain
@@ -60,7 +91,7 @@ const  App =  () =>  {
 		// Calculate price based on length of domain (change this to match your contract)	
 		// 3 chars = 0.5 MATIC, 4 chars = 0.3 MATIC, 5 or more = 0.1 MATIC
 		const price = domain.length === 3 ? '0.5' : domain.length === 4 ? '0.3' : '0.1';
-		console.log("Minting domain", domain, "with price", price);
+		toastInfo(`Minting domain ${domain} with price ${price}`);
 		try {
 			const { ethereum } = window;
 			if (ethereum) {
@@ -68,20 +99,21 @@ const  App =  () =>  {
 				const signer = provider.getSigner();
 				const contract = new ethers.Contract(CONTRACT_ADDRESS ?? '', contractAbi.abi, signer);
 
-				console.log("Going to pop wallet now to pay gas...")
 				let tx = await contract.register(domain, {value: ethers.utils.parseEther(price)});
 				// Wait for the transaction to be mined
 				const receipt = await tx.wait();
 
 				// Check if the transaction was successfully completed
 				if (receipt.status === 1) {
-					console.log(`Domain minted! ${PolyscanLink.PolygonMainnet}/tx/${tx.hash}`);
+					console.log(`Domain minted! ${PolyscanLink.PolygonMainnet}/tx/${tx.hash}`)
+					toastSuccess("Domain minted successfully!");
 					
 					// Set the record for the domain
 					tx = await contract.setRecord(domain, record);
 					await tx.wait();
 
-        	console.log(`Record set! ${PolyscanLink.PolygonMainnet}/tx/${tx.hash}`);
+					console.log(`Record set! ${PolyscanLink.PolygonMainnet}/tx/${tx.hash}`)
+					toastSuccess("Record set successfully!");
         
 					// Call fetchMints after 2 seconds
 					setTimeout(() => {
@@ -90,14 +122,15 @@ const  App =  () =>  {
 
 					setRecord('');
 					setDomain('');
+					setLoading(false);
 				}
 				else {
 					alert("Transaction failed! Please try again");
 				}
 			}
 		}
-		catch(error){
-			console.log(error);
+		catch(error: any){
+			toastError(error.msg);
 		}
 	}
 
@@ -105,7 +138,7 @@ const  App =  () =>  {
 	const updateDomain = async () => {
 		if (!record || !domain) { return }
 		setLoading(true);
-		console.log("Updating domain", domain, "with record", record);
+		toastInfo(`Updating domain ${domain} with record ${record}`);
 			try {
 				const { ethereum } = window;
 				if (ethereum) {
@@ -115,14 +148,16 @@ const  App =  () =>  {
 
 					let tx = await contract.setRecord(domain, record);
 					await tx.wait();
-					console.log(`Record set! ${PolyscanLink.PolygonMainnet}/tx/${tx.hash}`);
+					console.log(`Record set! ${PolyscanLink.PolygonMainnet}/tx/${tx.hash}`)
+					toastSuccess("Record set successfully!");
 
 					fetchMints();
 					setRecord('');
 					setDomain('');
+					setLoading(false);
 				}
-			} catch(error) {
-				console.log(error);
+			} catch(error: any) {
+				toastError(error.msg);
 			}
 		setLoading(false);
 	}
@@ -141,23 +176,52 @@ const  App =  () =>  {
       const accounts = await ethereum.request({ method: "eth_requestAccounts" });
 
       // Boom! This should print out public address once we authorize Metamask.
-      console.log("Connected", accounts[0]);
+      toastSuccess(`Connected ${accounts[0]}`);
       setCurrentAccount(accounts[0]);
 
-    } catch (error) {
-      console.log(error)
+    } catch (error: any) {
+      toastError(error.msg)
     }
   }
 
+	// Gotta make sure this is async.
+	const checkIfWalletIsConnected = useCallback(async () => {
+		// First make sure we have access to window.ethereum
+		const { ethereum } = window;
+
+		// Check if we're authorized to access the user's wallet
+		const accounts = await ethereum.request({ method: 'eth_accounts' });
+
+		// Users can have multiple authorized accounts, we grab the first one if its there!
+		if (accounts.length !== 0) {
+			const account = accounts[0];
+			toastSuccess(`Found an authorized account: ${account.slice(0, 6)}...${account.slice(-4)}`);
+			setCurrentAccount(account);
+
+		} else {
+			console.log('No authorized account found');
+		}
+
+		// This is the new part, we check the user's network chain ID
+		const chainId = await ethereum.request({ method: 'eth_chainId' });
+		setNetwork(networks[chainId]);
+
+		// Reload the page when they change networks
+		const handleChainChanged = (chainId: string) => {
+			window.location.reload();
+		}
+
+		ethereum.on('chainChanged', handleChainChanged);
+	}, [toastSuccess]);
+
 	// Add this function anywhere in your component (maybe after the mint function)
-	const fetchMints = async () => {
+	const fetchMints = useCallback(async () => {
 		try {
 			const { ethereum } = window;
 			if (ethereum) {
 				const provider = new ethers.providers.Web3Provider(ethereum);
 				const signer = provider.getSigner();
 				const contract = new ethers.Contract(CONTRACT_ADDRESS ?? '', contractAbi.abi, signer);
-				// var mintRecords = new Array<MintRecord>();
 
 				// Get all the domain names from our contract
 				const names = await contract.getAllNames();
@@ -174,43 +238,12 @@ const  App =  () =>  {
 					};
 				}));
 
-			console.log("MINTS FETCHED: ", mintRecords);
 			setMints(mintRecords);
 			}
-		} catch(error){
-			console.log(error);
+		} catch(error: any){
+			toastError(error.msg);
 		}
-	}
-
-	// Gotta make sure this is async.
-  const checkIfWalletIsConnected = async () => {
-    // First make sure we have access to window.ethereum
-    const { ethereum } = window;
-
-    // Check if we're authorized to access the user's wallet
-    const accounts = await ethereum.request({ method: 'eth_accounts' });
-
-    // Users can have multiple authorized accounts, we grab the first one if its there!
-    if (accounts.length !== 0) {
-      const account = accounts[0];
-      console.log('Found an authorized account:', account);
-      setCurrentAccount(account);
-
-    } else {
-      console.log('No authorized account found');
-    }
-
-		// This is the new part, we check the user's network chain ID
-    const chainId = await ethereum.request({ method: 'eth_chainId' });
-    setNetwork(networks[chainId]);
-
-		// Reload the page when they change networks
-    const handleChainChanged = (chainId: string) => {
-      window.location.reload();
-    }
-
-    ethereum.on('chainChanged', handleChainChanged);
-  }
+	}, [toastError]);
 
   // Create a function to render if wallet is not connected yet
   const renderNotConnectedContainer = () => (
@@ -236,6 +269,7 @@ const  App =  () =>  {
 			<div className="form-container">
 				<div className="first-row">
 					<input
+						disabled={loading}
 						type="text"
 						value={domain}
 						placeholder="domain name"
@@ -245,6 +279,7 @@ const  App =  () =>  {
 				</div>
 
 				<input
+					disabled={loading}
 					type="text"
 					value={record}
 					placeholder='address record'
@@ -255,18 +290,32 @@ const  App =  () =>  {
           {editing ? (
             <div className="button-container">
               {/* This will call the updateDomain function we just made */}
-              <button className='cta-button mint-button' disabled={loading} onClick={updateDomain}>
-                Set record
+              <button className='cta-button mint-button' disabled={loading} onClick={onHandleUpdateDomainClick}>
+                {!loading ? <p>Set record</p> :
+									<DotLoader
+										color={"#FFFFFF"}
+										loading={loading}
+										size={15}
+										aria-label="Loading Spinner"
+										data-testid="loader"
+									/>}
               </button>  
               {/* This will let us get out of editing mode by setting editing to false */}
-              <button className='cta-button mint-button' onClick={() => {setEditing(false)}}>
+              <button className='cta-button mint-button' onClick={onHandleCancelClick} disabled={loading}>
                 Cancel
               </button>  
             </div>
           ) : (
             // If editing is not true, the mint button will be returned instead
-            <button className='cta-button mint-button' disabled={loading} onClick={mintDomain}>
-              🦄&nbsp;Mint
+            <button className='cta-button mint-button' disabled={loading} onClick={onHandleMintClick}>
+              {!loading ? <p>🦄&nbsp;Mint</p> :
+								<DotLoader
+									color={"#FFFFFF"}
+									loading={loading}
+									size={15}
+									aria-label="Loading Spinner"
+									data-testid="loader"
+								/>}
             </button>  
           )}
 			</div>
@@ -292,7 +341,7 @@ const  App =  () =>  {
 										</a>
 										{/* If mint.owner is currentAccount, add an "edit" button*/}
 										{ mint.owner.toLowerCase() === currentAccount.toLowerCase() ?
-											<button className="edit-button" onClick={() => editRecord(mint.name)}>
+											<button className="edit-button" onClick={() => onHandleEditRecord(mint.name)}>
 												<img className="edit-icon" src="https://img.icons8.com/metro/26/000000/pencil.png" alt="Edit button" />
 											</button>
 											:
@@ -311,29 +360,35 @@ const  App =  () =>  {
 		}
 	};
 
-	// This will take us into edit mode and show us the edit buttons!
-	const editRecord = (name: string) => {
-		console.log("Editing record for", name);
-		setEditing(true);
-		setDomain(name);
-	}
-
 	// This will run any time currentAccount or network are changed
 	useEffect(() => {
 		if (network === targetNetwork) {
 			fetchMints();
 		}
-	}, [currentAccount, network, targetNetwork]);
+	}, [currentAccount, network, targetNetwork, fetchMints]);
 
   // This runs our function when the page loads.
   useEffect(() => {
-    checkIfWalletIsConnected();
-  }, []);
+		if (!currentAccount) {
+    	checkIfWalletIsConnected();
+		}
+  }, [checkIfWalletIsConnected, currentAccount]);
 
   return (
 		<div className="App">
 			<div className="container">
-
+				<ToastContainer
+					position="top-right"
+					autoClose={5000}
+					hideProgressBar={false}
+					newestOnTop
+					closeOnClick
+					rtl={false}
+					pauseOnFocusLoss
+					draggable
+					pauseOnHover
+					theme="dark"
+					/>
 				<div className="header-container">
 					<header>
             <div className="left">
@@ -351,6 +406,7 @@ const  App =  () =>  {
         {!currentAccount && renderNotConnectedContainer()}
 				{/* Render the input form if an account is connected */}
 				{currentAccount && renderInputForm()}
+				
 				{mints && renderMints()}
 
         <div className="footer-container">
