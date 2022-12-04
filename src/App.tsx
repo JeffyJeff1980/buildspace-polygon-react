@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ethers } from "ethers";
 import './App.css';
 import twitterLogo from './assets/twitter-logo.svg';
@@ -37,15 +37,13 @@ const  App =  () =>  {
 
 	const switchNetwork = UseNetworkConnectivity();
 
-	const onHandleSetDomain = (e: any) => {
+	const onHandleSetDomain = (e: React.ChangeEvent<HTMLInputElement>) => {
 		e.preventDefault();
-		console.log("setting domain to: ", e.target.value);
 		setDomain(e.target.value);
 	}
 
-	const onHandleSetRecord = (e: any) => {
+	const onHandleSetRecord = (e: React.ChangeEvent<HTMLInputElement>) => {
 		e.preventDefault();
-		console.log("setting record to: ", e.target.value);
 		setRecord(e.target.value);
 	}
 
@@ -241,7 +239,7 @@ const  App =  () =>  {
 						type="text"
 						value={domain}
 						placeholder="domain name"
-						onChange={e => onHandleSetDomain(e.target.value)}
+						onChange={onHandleSetDomain}
 					/>
 					<p className='tld'> {TLD} </p>
 				</div>
@@ -250,7 +248,7 @@ const  App =  () =>  {
 					type="text"
 					value={record}
 					placeholder='address record'
-					onChange={e => onHandleSetRecord(e.target.value)}
+					onChange={onHandleSetRecord}
 				/>
 
 				{/* If the editing variable is true, return the "Set record" and "Cancel" button */}
