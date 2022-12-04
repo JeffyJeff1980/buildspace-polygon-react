@@ -365,6 +365,9 @@ const  App =  () =>  {
 					&nbsp;and&nbsp;
 					<a className="footer-text" href={"https://twitter.com/_buildspace"} target="_blank" rel="noreferrer">@_buildspace</a>
 				</div>
+				<div className='footer-contract-container'>
+					<a href={`https://polygonscan.com/address/${CONTRACT_ADDRESS}`} target="_blank" rel="noreferrer"><p className='underlined'>View smart contract on Polyscan</p></a>
+				</div>
 				<div className="footer-logo-container">
 						<img src={buildspaceLogo} alt="Buildspace Logo" className="buildspace-logo" />
 					</div>
