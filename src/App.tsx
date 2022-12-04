@@ -6,7 +6,6 @@ import twitterLogo from './assets/twitter-logo.svg';
 import polygonLogo from './assets/polygonlogo.png';
 import ethLogo from './assets/ethlogo.png';
 import gmLogo from './assets/gm.jpg';
-import nftSvg from './assets/nft.svg';
 
 import contractAbi from './utils/contractABI.json';
 import { NetworkName, networks, OpenSeaLink } from './constants/networks';
@@ -19,15 +18,12 @@ export interface MintRecord {
   owner: string;
 }
 
-
 // Constants
 const TWITTER_HANDLE = 'JeffyJeffNFT';
-
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
-const POLYSCAN_LINK = process.env.POLYSCAN_POLYGON_MUMBAI_URL;
-const TLD = '.gm';
+const POLYSCAN_LINK = process.env.POLYSCAN_POLYGON_MAINNET_URL_ADDRESS;
 const CONTRACT_ADDRESS = '0x42c2AA6CC34355C9F4451DC4c38F32D0Ca3Fc01c';
-// const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
+const TLD = '.gm';
 
 const  App =  () =>  {
 	const [currentAccount, setCurrentAccount] = useState('');
@@ -37,7 +33,7 @@ const  App =  () =>  {
   const [loading, setLoading] = useState(false);
   const [record, setRecord] = useState('');
 	const [network, setNetwork] = useState('');
-	const [targetNetwork] = useState(NetworkName.PolygonMumbaiTestnet);
+	const [targetNetwork] = useState(NetworkName.PolygonMainnet);
 
 	const switchNetwork = UseNetworkConnectivity();
 
@@ -52,11 +48,6 @@ const  App =  () =>  {
 		console.log("setting record to: ", e.target.value);
 		setRecord(e.target.value);
 	}
-
-	const onHandleSubmit = async (e: any) => {
-		setLoading(true);
-	}
-
 
 	// Mint domain
 	const mintDomain = async () => {
@@ -86,13 +77,13 @@ const  App =  () =>  {
 
 				// Check if the transaction was successfully completed
 				if (receipt.status === 1) {
-					console.log("Domain minted! https://mumbai.polygonscan.com/tx/"+tx.hash);
+					console.log(`Domain minted! ${process.env.POLYSCAN_POLYGON_MAINNET_URL_TX}tx.hash`);
 					
 					// Set the record for the domain
 					tx = await contract.setRecord(domain, record);
 					await tx.wait();
 
-        	console.log("Record set! https://mumbai.polygonscan.com/tx/"+tx.hash);
+        	console.log(`Record set! ${process.env.POLYSCAN_POLYGON_MAINNET_URL_TX}tx.hash`);
         
 					// Call fetchMints after 2 seconds
 					setTimeout(() => {
@@ -126,7 +117,7 @@ const  App =  () =>  {
 
 					let tx = await contract.setRecord(domain, record);
 					await tx.wait();
-					console.log("Record set https://mumbai.polygonscan.com/tx/" + tx.hash);
+					console.log("Record set https://polygonscan.com/tx/" + tx.hash);
 
 					fetchMints();
 					setRecord('');
@@ -297,9 +288,8 @@ const  App =  () =>  {
 							}
 							return (
 								<div className="mint-item element" key={index}>
-									{/* <img src={nftSvg} alt="NFT" /> */}
 									<div className='mint-row'>
-										<a className="link" href={`${OpenSeaLink.PolygonMumbaiTestnet}${CONTRACT_ADDRESS}/${mint.id}`} target="_blank" rel="noopener noreferrer">
+										<a className="link" href={`${OpenSeaLink.PolygonMainnet}${CONTRACT_ADDRESS}/${mint.id}`} target="_blank" rel="noopener noreferrer">
 											<p className="underlined">{' '}{mint.name}{TLD}{' '}</p>
 										</a>
 										{/* If mint.owner is currentAccount, add an "edit" button*/}
