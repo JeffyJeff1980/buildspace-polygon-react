@@ -6,9 +6,10 @@ import twitterLogo from './assets/twitter-logo.svg';
 import polygonLogo from './assets/polygonlogo.png';
 import ethLogo from './assets/ethlogo.png';
 import gmLogo from './assets/gm.jpg';
+import buildspaceLogo from './assets/buildspace.png';
 
 import contractAbi from './utils/contractABI.json';
-import { NetworkName, networks, OpenSeaLink } from './constants/networks';
+import { NetworkName, networks, OpenSeaLink, PolyscanLink } from './constants/networks';
 import UseNetworkConnectivity from './hooks/UseNetworkConnectivity';
 
 export interface MintRecord {
@@ -21,8 +22,7 @@ export interface MintRecord {
 // Constants
 const TWITTER_HANDLE = 'JeffyJeffNFT';
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
-const POLYSCAN_LINK = process.env.POLYSCAN_POLYGON_MAINNET_URL_ADDRESS;
-const CONTRACT_ADDRESS = '0x42c2AA6CC34355C9F4451DC4c38F32D0Ca3Fc01c';
+const CONTRACT_ADDRESS = '0xE510E8512ca67ff99916153DFd41aBe3056BfCf6';
 const TLD = '.gm';
 
 const  App =  () =>  {
@@ -77,13 +77,13 @@ const  App =  () =>  {
 
 				// Check if the transaction was successfully completed
 				if (receipt.status === 1) {
-					console.log(`Domain minted! ${process.env.POLYSCAN_POLYGON_MAINNET_URL_TX}tx.hash`);
+					console.log(`Domain minted! ${PolyscanLink.PolygonMainnet}/tx/${tx.hash}`);
 					
 					// Set the record for the domain
 					tx = await contract.setRecord(domain, record);
 					await tx.wait();
 
-        	console.log(`Record set! ${process.env.POLYSCAN_POLYGON_MAINNET_URL_TX}tx.hash`);
+        	console.log(`Record set! ${PolyscanLink.PolygonMainnet}/tx/${tx.hash}`);
         
 					// Call fetchMints after 2 seconds
 					setTimeout(() => {
@@ -117,7 +117,7 @@ const  App =  () =>  {
 
 					let tx = await contract.setRecord(domain, record);
 					await tx.wait();
-					console.log("Record set https://polygonscan.com/tx/" + tx.hash);
+					console.log(`Record set! ${PolyscanLink.PolygonMainnet}/tx/${tx.hash}`);
 
 					fetchMints();
 					setRecord('');
@@ -176,7 +176,7 @@ const  App =  () =>  {
 					};
 				}));
 
-			console.log("MINTS FETCHED ", mintRecords);
+			console.log("MINTS FETCHED: ", mintRecords);
 			setMints(mintRecords);
 			}
 		} catch(error){
@@ -268,7 +268,7 @@ const  App =  () =>  {
           ) : (
             // If editing is not true, the mint button will be returned instead
             <button className='cta-button mint-button' disabled={loading} onClick={mintDomain}>
-              Mint
+              🦄&nbsp;Mint
             </button>  
           )}
 			</div>
@@ -301,7 +301,11 @@ const  App =  () =>  {
 											null
 										}
 									</div>
-						<p className="mint-record"><a target="_blank" href={`${POLYSCAN_LINK}${mint.record}`} rel="noopener noreferrer">{mint.record.slice(0, 6)}...{mint.record.slice(-4)}</a></p>
+						<a className="link" href={`https://polygonscan.com/address/${mint.record}`} target="_blank" rel="noopener noreferrer">
+							<p className="mint-record underlined">
+								{mint.record.slice(0, 6)}...{mint.record.slice(-4)}
+							</p>
+						</a>
 					</div>)
 					})}
 				</div>
@@ -335,7 +339,7 @@ const  App =  () =>  {
 				<div className="header-container">
 					<header>
             <div className="left">
-              <p className="title">☕ GM Name Service!</p>
+              <p className="title">☕☀️ GM Name Service!</p>
             </div>
 						{/* Display a logo and wallet connection status*/}
 						<div className="right">
@@ -353,13 +357,19 @@ const  App =  () =>  {
 
         <div className="footer-container">
 					<img alt="Twitter Logo" className="twitter-logo" src={twitterLogo} />
+					built by&nbsp;
 					<a
 						className="footer-text"
 						href={TWITTER_LINK}
 						target="_blank"
 						rel="noreferrer"
-					>{`built by @${TWITTER_HANDLE} and @buildspace` }</a>
+					>{`@${TWITTER_HANDLE}` }</a>
+					&nbsp;and&nbsp;
+					<a className="footer-text" href={"https://twitter.com/_buildspace"} target="_blank" rel="noreferrer">@_buildspace</a>
 				</div>
+				<div className="footer-logo-container">
+						<img src={buildspaceLogo} alt="Buildspace Logo" className="buildspace-logo" />
+					</div>
 			</div>
 		</div>
 	);

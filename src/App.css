@@ -35,6 +35,7 @@ header{
   color: white;
 }
 
+
 .subtitle {
   font-size: 25px;
   color: white;
@@ -151,7 +152,6 @@ header{
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-bottom: 30px;
 }
 
 .twitter-logo {
@@ -171,6 +171,14 @@ header{
   font-weight: bold;
 }
 
+.footer-logo-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 30px;
+}
 .form-container{
   display: flex;
   width: 100%;
