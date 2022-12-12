@@ -374,67 +374,69 @@ const  App =  () =>  {
   }, [checkIfWalletIsConnected, currentAccount]);
 
   return (
-    <div className="container">
-      <>
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="dark"
-        />
+    <div className="App">
+      <div className="container">
+        <>
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="dark"
+          />
 
-        <div className="header-container">
-          <header>
-            <div className="title">
-              <p className="title">☕☀️ GM Name Service!</p>
-            </div>
-            {/* Display a logo and wallet connection status*/}
-            <div className="right">
-              <img alt="Network logo" className="logo" src={network.includes("Polygon") ? polygonLogo : ethLogo} />
-              {currentAccount ? (
-                <p>
-                  {" "}
-                  Wallet: {currentAccount.slice(0, 6)}...{currentAccount.slice(-4)}{" "}
-                </p>
-              ) : (
-                <p> Not connected </p>
-              )}
-            </div>
-          </header>
-        </div>
+          <div className="header-container">
+            <header>
+              <div className="title">
+                <p className="title">☕☀️ GM Name Service!</p>
+              </div>
+              {/* Display a logo and wallet connection status*/}
+              <div className="right">
+                <img alt="Network logo" className="logo" src={network.includes("Polygon") ? polygonLogo : ethLogo} />
+                {currentAccount ? (
+                  <p>
+                    {" "}
+                    Wallet: {currentAccount.slice(0, 6)}...{currentAccount.slice(-4)}{" "}
+                  </p>
+                ) : (
+                  <p> Not connected </p>
+                )}
+              </div>
+            </header>
+          </div>
 
-        {/* Hide the connect button if currentAccount isn't empty*/}
-        {!currentAccount && renderNotConnectedContainer()}
+          {/* Hide the connect button if currentAccount isn't empty*/}
+          {!currentAccount && renderNotConnectedContainer()}
 
-        {/* Render the input form if an account is connected */}
-        {currentAccount && renderInputForm()}
+          {/* Render the input form if an account is connected */}
+          {currentAccount && renderInputForm()}
 
-        {mints && renderMints()}
+          {mints && renderMints()}
 
-        <div className="footer-container">
-          <img alt="Twitter Logo" className="twitter-logo" src={twitterLogo} />
-          built by&nbsp;
-          <a className="footer-text" href={TWITTER_LINK} target="_blank" rel="noreferrer">{`@${TWITTER_HANDLE}`}</a>
-          &nbsp;and&nbsp;
-          <a className="footer-text" href={"https://twitter.com/_buildspace"} target="_blank" rel="noreferrer">
-            @_buildspace
-          </a>
-        </div>
-        <div className="footer-contract-container">
-          <a href={`https://polygonscan.com/address/${CONTRACT_ADDRESS}`} target="_blank" rel="noreferrer">
-            <p className="underlined">View smart contract on Polyscan</p>
-          </a>
-        </div>
-        <div className="footer-logo-container">
-          <img src={buildspaceLogo} alt="Buildspace Logo" className="buildspace-logo" />
-        </div>
-      </>
+          <div className="footer-container">
+            <img alt="Twitter Logo" className="twitter-logo" src={twitterLogo} />
+            built by&nbsp;
+            <a className="footer-text" href={TWITTER_LINK} target="_blank" rel="noreferrer">{`@${TWITTER_HANDLE}`}</a>
+            &nbsp;and&nbsp;
+            <a className="footer-text" href={"https://twitter.com/_buildspace"} target="_blank" rel="noreferrer">
+              @_buildspace
+            </a>
+          </div>
+          <div className="footer-contract-container">
+            <a href={`https://polygonscan.com/address/${CONTRACT_ADDRESS}`} target="_blank" rel="noreferrer">
+              <p className="underlined">View smart contract on Polyscan</p>
+            </a>
+          </div>
+          <div className="footer-logo-container">
+            <img src={buildspaceLogo} alt="Buildspace Logo" className="buildspace-logo" />
+          </div>
+        </>
+      </div>
     </div>
   );
 }
