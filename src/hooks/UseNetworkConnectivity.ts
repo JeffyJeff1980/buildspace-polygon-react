@@ -1,13 +1,16 @@
-import { NetworkChainId } from "../constants/networks";
+import { NetworkChainId, PolyscanLink } from "../constants/networks";
+import { UseToasts } from "./UseToasts";
 
 function UseNetworkConnectivity() {
+  const { toastError } = UseToasts();
+
   const switchNetwork = async () => {
     if (window.ethereum) {
       try {
         // Try to switch to the Mumbai testnet
         await window.ethereum.request({
           method: "wallet_switchEthereumChain",
-          params: [{ chainId: NetworkChainId.PolygonMumbaiTestnet }], // Check networks.js for hexadecimal network ids
+          params: [{ chainId: NetworkChainId.PolygonMainnet }], // Check networks.js for hexadecimal network ids
         });
       } catch (error: any) {
         // This error code means that the chain we want has not been added to MetaMask
@@ -18,15 +21,15 @@ function UseNetworkConnectivity() {
               method: "wallet_addEthereumChain",
               params: [
                 {
-                  chainId: NetworkChainId.PolygonMumbaiTestnet,
-                  chainName: "Polygon Mumbai Testnet",
-                  rpcUrls: ["https://rpc-mumbai.maticvigil.com/"],
+                  chainId: NetworkChainId.PolygonMainnet,
+                  chainName: "Polygon Mainnet",
+                  rpcUrls: ["https://polygon-rpc.com/"],
                   nativeCurrency: {
-                    name: "Mumbai Matic",
+                    name: "Matic",
                     symbol: "MATIC",
                     decimals: 18,
                   },
-                  blockExplorerUrls: ["https://mumbai.polygonscan.com/"],
+                  blockExplorerUrls: [PolyscanLink.PolygonMainnet],
                 },
               ],
             });
@@ -38,7 +41,7 @@ function UseNetworkConnectivity() {
       }
     } else {
       // If window.ethereum is not found then MetaMask is not installed
-      alert("MetaMask is not installed. Please install it to use this app: https://metamask.io/download.html");
+      toastError("MetaMask is not installed. Please install it to use this app.");
     }
   };
   return switchNetwork;
