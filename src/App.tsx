@@ -85,53 +85,51 @@ const  App =  () =>  {
 		if (!domain) { return }
 		// Alert the user if the domain is too short
 		if (domain.length < 3) {
-			alert('Domain must be at least 3 characters long');
-			return;
-		}
-		// Calculate price based on length of domain (change this to match your contract)	
-		// 3 chars = 0.5 MATIC, 4 chars = 0.3 MATIC, 5 or more = 0.1 MATIC
-		const price = domain.length === 3 ? '0.5' : domain.length === 4 ? '0.3' : '0.1';
-		toastInfo(`Minting domain ${domain} with price ${price}`);
-		try {
-			const { ethereum } = window;
-			if (ethereum) {
-				const provider = new ethers.providers.Web3Provider(ethereum);
-				const signer = provider.getSigner();
-				const contract = new ethers.Contract(CONTRACT_ADDRESS ?? '', contractAbi.abi, signer);
+      toastError("Domain must be at least 3 characters long");
+      return;
+    }
+    // Calculate price based on length of domain (change this to match your contract)
+    // 3 chars = 0.5 MATIC, 4 chars = 0.3 MATIC, 5 or more = 0.1 MATIC
+    const price = domain.length === 3 ? "0.5" : domain.length === 4 ? "0.3" : "0.1";
+    toastInfo(`Minting domain ${domain} with price ${price}`);
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(CONTRACT_ADDRESS ?? "", contractAbi.abi, signer);
 
-				let tx = await contract.register(domain, {value: ethers.utils.parseEther(price)});
-				// Wait for the transaction to be mined
-				const receipt = await tx.wait();
+        let tx = await contract.register(domain, { value: ethers.utils.parseEther(price) });
+        // Wait for the transaction to be mined
+        const receipt = await tx.wait();
 
-				// Check if the transaction was successfully completed
-				if (receipt.status === 1) {
-					console.log(`Domain minted! ${PolyscanLink.PolygonMainnet}/tx/${tx.hash}`)
-					toastSuccess("Domain minted successfully!");
-					
-					// Set the record for the domain
-					tx = await contract.setRecord(domain, record);
-					await tx.wait();
+        // Check if the transaction was successfully completed
+        if (receipt.status === 1) {
+          console.log(`Domain minted! ${PolyscanLink.PolygonMainnet}/tx/${tx.hash}`);
+          toastSuccess("Domain minted successfully!");
 
-					console.log(`Record set! ${PolyscanLink.PolygonMainnet}/tx/${tx.hash}`)
-					toastSuccess("Record set successfully!");
-        
-					// Call fetchMints after 2 seconds
-					setTimeout(() => {
-						fetchMints();
-					}, 2000);
+          // Set the record for the domain
+          tx = await contract.setRecord(domain, record);
+          await tx.wait();
 
-					setRecord('');
-					setDomain('');
-					setLoading(false);
-				}
-				else {
-					alert("Transaction failed! Please try again");
-				}
-			}
-		}
-		catch(error: any){
-			toastError(error.msg);
-		}
+          console.log(`Record set! ${PolyscanLink.PolygonMainnet}/tx/${tx.hash}`);
+          toastSuccess("Record set successfully!");
+
+          // Call fetchMints after 2 seconds
+          setTimeout(() => {
+            fetchMints();
+          }, 2000);
+
+          setRecord("");
+          setDomain("");
+          setLoading(false);
+        } else {
+          toastError("Transaction failed! Please try again");
+        }
+      }
+    } catch (error: any) {
+      toastError(error.msg);
+    }
 	}
 
 	// Update the domain record
@@ -168,7 +166,7 @@ const  App =  () =>  {
       const { ethereum } = window;
 
       if (!ethereum) {
-        alert("Get MetaMask -> https://metamask.io/");
+        toastError("Get MetaMask -> https://metamask.io/");
         return;
       }
 
