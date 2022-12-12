@@ -17,14 +17,7 @@ import UseNetworkConnectivity from './hooks/UseNetworkConnectivity';
 import { UseToasts } from './hooks/UseToasts';
 import { DotLoader } from 'react-spinners';
 import { ToastContainer } from 'react-toastify';
-
-
-export interface MintRecord {
-  id: number;
-  name: string;
-  record: string;
-  owner: string;
-}
+import UseFetchMints from './hooks/UseFetchMints';
 
 // Constants
 const TWITTER_HANDLE = 'JeffyJeffNFT';
@@ -33,58 +26,67 @@ const CONTRACT_ADDRESS = '0xE510E8512ca67ff99916153DFd41aBe3056BfCf6';
 const TLD = '.gm';
 
 const  App =  () =>  {
-	const [currentAccount, setCurrentAccount] = useState('');
-	const [domain, setDomain] = useState('');
-	const [mints, setMints] = useState(Array<MintRecord>);
+  const [currentAccount, setCurrentAccount] = useState("");
+  const [domain, setDomain] = useState("");
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [record, setRecord] = useState('');
-	const [network, setNetwork] = useState('');
-	const [targetNetwork] = useState(NetworkName.PolygonMainnet);
+  const [record, setRecord] = useState("");
+  const [network, setNetwork] = useState("");
+  const {fetchMints, mints } = UseFetchMints(CONTRACT_ADDRESS);
 
-	const switchNetwork = UseNetworkConnectivity();
-	const { toastSuccess, toastError, toastInfo } = UseToasts();
+  // Should be set to the network you want to use
+  const [targetNetwork] = useState(NetworkName.PolygonMainnet);
 
-	const onHandleSetDomain = (e: React.ChangeEvent<HTMLInputElement>) => {
-		e.preventDefault();
-		setDomain(e.target.value);
-	}
+  // Custom hooks
+  const switchNetwork = UseNetworkConnectivity();
+  const { toastSuccess, toastError, toastInfo } = UseToasts();
 
-	const onHandleSetRecord = (e: React.ChangeEvent<HTMLInputElement>) => {
-		e.preventDefault();
-		setRecord(e.target.value);
-	}
+  // handler for when the domain is changed
+  const onHandleSetDomain = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    setDomain(e.target.value);
+  };
 
-	const onHandleCancelClick = () => {
-		setEditing(false);
-		setRecord('');
-		setDomain('');
-	}
+  // handler for when the record is changed
+  const onHandleSetRecord = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    setRecord(e.target.value);
+  };
 
-	// This will take us into edit mode and show us the edit buttons!
-	const onHandleEditRecord = (name: string) => {
-		setEditing(true);
-		setDomain(name);
-	}
+  // handler for when the cancel button is clicked
+  const onHandleCancelClick = () => {
+    setEditing(false);
+    setRecord("");
+    setDomain("");
+  };
 
-	const onHandleMintClick = () => {
-		setLoading(true);
-		mintDomain();
-	};
+  // handler for the edit button
+  const onHandleEditRecord = (name: string) => {
+    setEditing(true);
+    setDomain(name);
+  };
 
-	const onHandleUpdateDomainClick = () => {
-		debugger;
-		setLoading(true);
-		updateDomain();
-	}
+  // handler for the mint button
+  const onHandleMintClick = () => {
+    setLoading(true);
+    mintDomain();
+  };
 
-	// Mint domain
-	const mintDomain = async () => {
+  // handler for the update domain button
+  const onHandleUpdateDomainClick = () => {
+    debugger;
+    setLoading(true);
+    updateDomain();
+  };
 
-		// Don't run if the domain is empty
-		if (!domain) { return }
-		// Alert the user if the domain is too short
-		if (domain.length < 3) {
+  // Mint domain function
+  const mintDomain = async () => {
+    // Don't run if the domain is empty
+    if (!domain) {
+      return;
+    }
+    // Alert the user if the domain is too short
+    if (domain.length < 3) {
       toastError("Domain must be at least 3 characters long");
       return;
     }
@@ -130,37 +132,39 @@ const  App =  () =>  {
     } catch (error: any) {
       toastError(error.msg);
     }
-	}
+  };
 
-	// Update the domain record
-	const updateDomain = async () => {
-		if (!record || !domain) { return }
-		setLoading(true);
-		toastInfo(`Updating domain ${domain} with record ${record}`);
-			try {
-				const { ethereum } = window;
-				if (ethereum) {
-					const provider = new ethers.providers.Web3Provider(ethereum);
-					const signer = provider.getSigner();
-					const contract = new ethers.Contract(CONTRACT_ADDRESS ?? '', contractAbi.abi, signer);
+  // Update the domain record function
+  const updateDomain = async () => {
+    if (!record || !domain) {
+      return;
+    }
+    setLoading(true);
+    toastInfo(`Updating domain ${domain} with record ${record}`);
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(CONTRACT_ADDRESS ?? "", contractAbi.abi, signer);
 
-					let tx = await contract.setRecord(domain, record);
-					await tx.wait();
-					console.log(`Record set! ${PolyscanLink.PolygonMainnet}/tx/${tx.hash}`)
-					toastSuccess("Record set successfully!");
+        let tx = await contract.setRecord(domain, record);
+        await tx.wait();
+        console.log(`Record set! ${PolyscanLink.PolygonMainnet}/tx/${tx.hash}`);
+        toastSuccess("Record set successfully!");
 
-					fetchMints();
-					setRecord('');
-					setDomain('');
-					setLoading(false);
-				}
-			} catch(error: any) {
-				toastError(error.msg);
-			}
-		setLoading(false);
-	}
+        fetchMints();
+        setRecord("");
+        setDomain("");
+        setLoading(false);
+      }
+    } catch (error: any) {
+      toastError(error.msg);
+    }
+    setLoading(false);
+  };
 
-	// Implement your connectWallet method here
+  // connect wallet function
   const connectWallet = async () => {
     try {
       const { ethereum } = window;
@@ -176,14 +180,13 @@ const  App =  () =>  {
       // Boom! This should print out public address once we authorize Metamask.
       toastSuccess(`Connected ${accounts[0]}`);
       setCurrentAccount(accounts[0]);
-
     } catch (error: any) {
-      toastError(error.msg)
+      toastError(error.msg);
     }
-  }
+  };
 
-	// Gotta make sure this is async.
-	const checkIfWalletIsConnected = useCallback(async () => {
+  // check to see if the ethereum wallet is connected to the browser
+  const checkIfWalletIsConnected = useCallback(async () => {
     // First make sure we have access to window.ethereum
     const { ethereum } = window;
 
@@ -214,40 +217,7 @@ const  App =  () =>  {
     ethereum.on("chainChanged", handleChainChanged);
   }, [toastSuccess]);
 
-  // Add this function anywhere in your component (maybe after the mint function)
-  const fetchMints = useCallback(async () => {
-    try {
-      const { ethereum } = window;
-      if (ethereum) {
-        const provider = new ethers.providers.Web3Provider(ethereum);
-        const signer = provider.getSigner();
-        const contract = new ethers.Contract(CONTRACT_ADDRESS ?? "", contractAbi.abi, signer);
-
-        // Get all the domain names from our contract
-        const names = await contract.getAllNames();
-
-        // For each name, get the record and the address
-        const mintRecords = await Promise.all(
-          names.map(async (name: any) => {
-            const mintRecord = await contract.records(name);
-            const owner = await contract.domains(name);
-            return {
-              id: names.indexOf(name),
-              name: name,
-              record: mintRecord,
-              owner: owner,
-            };
-          })
-        );
-
-        setMints(mintRecords);
-      }
-    } catch (error: any) {
-      toastError(error.msg);
-    }
-  }, [toastError]);
-
-  // Create a function to render if wallet is not connected yet
+  // render "Not Connected" container, for when the user is not connected to the wallet
   const renderNotConnectedContainer = () => (
     <div className="connect-wallet-container">
       <img alt="GM" className="gm-logo" src={gmLogo} />
@@ -257,7 +227,8 @@ const  App =  () =>  {
     </div>
   );
 
-  // Form to enter domain name and data
+  // render the input form container, for when the user is connected to the wallet and on the correct network
+  // this is where the user can set the domain name and the record
   const renderInputForm = () => {
     network !== targetNetwork ? (
       <div className="connect-wallet-container">
@@ -305,7 +276,8 @@ const  App =  () =>  {
     );
   };
 
-  // Add this render function next to your other render functions
+  // render the mints container, for when the user is connected to the wallet and on the correct network
+  // and there are mints to display
   const renderMints = () => {
     if (currentAccount && mints.length > 0) {
       return (
@@ -357,20 +329,25 @@ const  App =  () =>  {
     }
   };
 
-  // This will run any time currentAccount or network are changed
+  // This will run any time currentAccount or network states are changed
+  // currentAccount is the user's wallet address
+  // network is the user's current network
   useEffect(() => {
     if (network === targetNetwork) {
+      // Fetch all the mints from the contract
       fetchMints();
     }
   }, [currentAccount, network, targetNetwork, fetchMints]);
 
-  // This runs our function when the page loads.
+  // This will run any time the page is loaded
+  // This will check if the browser is connected to the wallet and on the correct network
   useEffect(() => {
     if (!currentAccount) {
       checkIfWalletIsConnected();
     }
   }, [checkIfWalletIsConnected, currentAccount]);
 
+  // The main render function
   return (
     <div className="App">
       <div className="container">
