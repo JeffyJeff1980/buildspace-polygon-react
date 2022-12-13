@@ -35,7 +35,7 @@ const App = () => {
   const { fetchMints, mints } = UseFetchMints(CONTRACT_ADDRESS);
 
   // Should be set to the network you want to use
-  const [targetNetwork] = useState(NetworkName.PolygonMainnet);
+  const [targetNetwork] = useState(NetworkName.PolygonMainnet.toString());
 
   // Custom hooks
   const switchNetwork = UseNetworkConnectivity();
@@ -196,7 +196,7 @@ const App = () => {
     // Users can have multiple authorized accounts, we grab the first one if its there!
     if (accounts.length !== 0) {
       const account = accounts[0];
-      toastSuccess(`Found an authorized account: ${account.slice(0, 6)}...${account.slice(-4)}`);
+      console.log(`Found an authorized account: ${account.slice(0, 6)}...${account.slice(-4)}`);
       setCurrentAccount(account);
     } else {
       console.log("No authorized account found");
@@ -215,7 +215,7 @@ const App = () => {
     };
 
     ethereum.on("chainChanged", handleChainChanged);
-  }, [toastSuccess]);
+  }, []);
 
   // render "Not Connected" container, for when the user is not connected to the wallet
   const renderNotConnectedContainer = () => (
@@ -240,14 +240,25 @@ const App = () => {
   // render the input form container, for when the user is connected to the wallet and on the correct network
   // this is where the user can set the domain name and the record
   const renderInputFormContainer = () => {
-    <>
+    return (
       <div className="form-container">
-        <div className="first-row">
-          <input disabled={loading} type="text" value={domain} placeholder="domain name" onChange={onHandleSetDomain} />
-          <p className="tld"> {TLD} </p>
-        </div>
-
-        <input disabled={loading} type="text" value={record} placeholder="address record" onChange={onHandleSetRecord} />
+        <input
+          disabled={loading}
+          type="text"
+          className="text-input"
+          value={domain}
+          placeholder="domain name"
+          onChange={onHandleSetDomain}
+        />
+        <p className="tld"> {TLD} </p>
+        <input
+          disabled={loading}
+          type="text"
+          className="text-input"
+          value={record}
+          placeholder="address record"
+          onChange={onHandleSetRecord}
+        />
 
         {/* If the editing variable is true, return the "Set record" and "Cancel" button */}
         {editing ? (
@@ -276,7 +287,7 @@ const App = () => {
           </button>
         )}
       </div>
-    </>;
+    );
   };
 
   // render the mints container, for when the user is connected to the wallet and on the correct network
@@ -334,11 +345,11 @@ const App = () => {
   // currentAccount is the user's wallet address
   // network is the user's current network
   useEffect(() => {
-    if (network === targetNetwork) {
+    if (currentAccount && network === targetNetwork && mints.length === 0) {
       // Fetch all the mints from the contract
       fetchMints();
     }
-  }, [currentAccount, network, targetNetwork, fetchMints]);
+  }, [currentAccount, network, targetNetwork, fetchMints, mints]);
 
   // This will run any time the page is loaded
   // This will check if the browser is connected to the wallet and on the correct network
@@ -389,11 +400,10 @@ const App = () => {
           {/* Hide the connect button if currentAccount isn't empty*/}
           {!currentAccount && renderNotConnectedContainer()}
 
-          {/* Render the input form if an account is connected */}
-          {currentAccount && renderInputFormContainer()}
-
           {/* Render the wrong network container if the user is connected to the wrong network */}
           {currentAccount && network !== targetNetwork && renderWrongNetworkContainer()}
+
+          {currentAccount && network === targetNetwork && renderInputFormContainer()}
 
           {/* Render the mints if there are any */}
           {currentAccount && mints && mints.length > 0 && renderMintsContainer()}
