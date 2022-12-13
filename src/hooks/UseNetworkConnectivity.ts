@@ -7,7 +7,6 @@ function UseNetworkConnectivity() {
   const switchNetwork = async () => {
     if (window.ethereum) {
       try {
-        // Try to switch to the Mumbai testnet
         await window.ethereum.request({
           method: "wallet_switchEthereumChain",
           params: [{ chainId: NetworkChainId.PolygonMainnet }], // Check networks.js for hexadecimal network ids
