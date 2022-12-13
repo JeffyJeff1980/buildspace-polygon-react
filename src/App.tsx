@@ -32,7 +32,7 @@ const  App =  () =>  {
   const [loading, setLoading] = useState(false);
   const [record, setRecord] = useState("");
   const [network, setNetwork] = useState("");
-  const {fetchMints, mints } = UseFetchMints(CONTRACT_ADDRESS);
+  const { fetchMints, mints } = UseFetchMints(CONTRACT_ADDRESS);
 
   // Should be set to the network you want to use
   const [targetNetwork] = useState(NetworkName.PolygonMainnet);
@@ -227,17 +227,20 @@ const  App =  () =>  {
     </div>
   );
 
+  // render "Wrong Network" container, for when the user is connected to the wallet but not on the correct network
+  const renderWrongNetworkContainer = () => (
+    <div className="connect-wallet-container">
+      <h2>Please switch to {targetNetwork}</h2>
+      <button className="cta-button mint-button" onClick={switchNetwork}>
+        Click here to switch
+      </button>
+    </div>
+  );
+
   // render the input form container, for when the user is connected to the wallet and on the correct network
   // this is where the user can set the domain name and the record
   const renderInputForm = () => {
-    network !== targetNetwork ? (
-      <div className="connect-wallet-container">
-        <h2>Please switch to {targetNetwork}</h2>
-        <button className="cta-button mint-button" onClick={switchNetwork}>
-          Click here to switch
-        </button>
-      </div>
-    ) : (
+    <>
       <div className="form-container">
         <div className="first-row">
           <input disabled={loading} type="text" value={domain} placeholder="domain name" onChange={onHandleSetDomain} />
@@ -273,7 +276,7 @@ const  App =  () =>  {
           </button>
         )}
       </div>
-    );
+    </>;
   };
 
   // render the mints container, for when the user is connected to the wallet and on the correct network
@@ -391,6 +394,10 @@ const  App =  () =>  {
           {/* Render the input form if an account is connected */}
           {currentAccount && renderInputForm()}
 
+          {/* Render the wrong network container if the user is connected to the wrong network */}
+          {currentAccount && network !== targetNetwork && renderWrongNetworkContainer()}
+
+          {/* Render the mints if there are any */}
           {mints && renderMints()}
 
           <div className="footer-container">
