@@ -4,7 +4,7 @@ export enum NetworkChainId {
   Kovan = "0x2a",
   Rinkeby = "0x4",
   Goerli = "0x5",
-  PolygonMainnet = "0x137",
+  PolygonMainnet = "0x89",
   PolygonMumbaiTestnet = "0x13881",
 }
 

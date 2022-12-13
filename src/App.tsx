@@ -9,23 +9,23 @@ import { NetworkName, networks, OpenSeaLink, PolyscanLink } from './constants/ne
 import twitterLogo from './assets/twitter-logo.svg';
 import polygonLogo from './assets/polygonlogo.png';
 import ethLogo from './assets/ethlogo.png';
-import gmLogo from './assets/gm.jpg';
-import buildspaceLogo from './assets/buildspace.png';
+import gmLogo from "./assets/gm_.jpg";
+import buildspaceLogo from "./assets/buildspace.png";
 
-import contractAbi from './utils/contractABI.json';
-import UseNetworkConnectivity from './hooks/UseNetworkConnectivity';
-import { UseToasts } from './hooks/UseToasts';
-import { DotLoader } from 'react-spinners';
-import { ToastContainer } from 'react-toastify';
-import UseFetchMints from './hooks/UseFetchMints';
+import contractAbi from "./utils/contractABI.json";
+import UseNetworkConnectivity from "./hooks/UseNetworkConnectivity";
+import { UseToasts } from "./hooks/UseToasts";
+import { DotLoader } from "react-spinners";
+import { ToastContainer } from "react-toastify";
+import UseFetchMints from "./hooks/UseFetchMints";
 
 // Constants
-const TWITTER_HANDLE = 'JeffyJeffNFT';
+const TWITTER_HANDLE = "JeffyJeffNFT";
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
-const CONTRACT_ADDRESS = '0xE510E8512ca67ff99916153DFd41aBe3056BfCf6';
-const TLD = '.gm';
+const CONTRACT_ADDRESS = "0xE510E8512ca67ff99916153DFd41aBe3056BfCf6";
+const TLD = ".gm";
 
-const  App =  () =>  {
+const App = () => {
   const [currentAccount, setCurrentAccount] = useState("");
   const [domain, setDomain] = useState("");
   const [editing, setEditing] = useState(false);
@@ -239,7 +239,7 @@ const  App =  () =>  {
 
   // render the input form container, for when the user is connected to the wallet and on the correct network
   // this is where the user can set the domain name and the record
-  const renderInputForm = () => {
+  const renderInputFormContainer = () => {
     <>
       <div className="form-container">
         <div className="first-row">
@@ -281,55 +281,53 @@ const  App =  () =>  {
 
   // render the mints container, for when the user is connected to the wallet and on the correct network
   // and there are mints to display
-  const renderMints = () => {
-    if (currentAccount && mints.length > 0) {
-      return (
-        <div className="mint-container">
-          <p className="subtitle">Recently minted domains:</p>
-          <div className="mint-list">
-            {mints.map((mint, index) => {
-              if (mint.id === 0) {
-                return null;
-              }
-              return (
-                <div className="mint-item element" key={index}>
-                  <div className="mint-row">
-                    <a
-                      className="link"
-                      href={`${OpenSeaLink.PolygonMainnet}${CONTRACT_ADDRESS}/${mint.id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <p className="underlined">
-                        {" "}
-                        {mint.name}
-                        {TLD}{" "}
-                      </p>
-                    </a>
-                    {/* If mint.owner is currentAccount, add an "edit" button*/}
-                    {mint.owner.toLowerCase() === currentAccount.toLowerCase() ? (
-                      <button className="edit-button" onClick={() => onHandleEditRecord(mint.name)}>
-                        <img className="edit-icon" src="https://img.icons8.com/metro/26/000000/pencil.png" alt="Edit button" />
-                      </button>
-                    ) : null}
-                  </div>
+  const renderMintsContainer = () => {
+    return (
+      <div className="mint-container">
+        <p className="subtitle">Recently minted domains:</p>
+        <div className="mint-list">
+          {mints.map((mint, index) => {
+            if (mint.id === 0) {
+              return null;
+            }
+            return (
+              <div className="mint-item element" key={index}>
+                <div className="mint-row">
                   <a
                     className="link"
-                    href={`https://polygonscan.com/address/${mint.record}`}
+                    href={`${OpenSeaLink.PolygonMainnet}${CONTRACT_ADDRESS}/${mint.id}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <p className="mint-record underlined">
-                      {mint.record.slice(0, 6)}...{mint.record.slice(-4)}
+                    <p className="underlined">
+                      {" "}
+                      {mint.name}
+                      {TLD}{" "}
                     </p>
                   </a>
+                  {/* If mint.owner is currentAccount, add an "edit" button*/}
+                  {mint.owner.toLowerCase() === currentAccount.toLowerCase() ? (
+                    <button className="edit-button" onClick={() => onHandleEditRecord(mint.name)}>
+                      <img className="edit-icon" src="https://img.icons8.com/metro/26/000000/pencil.png" alt="Edit button" />
+                    </button>
+                  ) : null}
                 </div>
-              );
-            })}
-          </div>
+                <a
+                  className="link"
+                  href={`https://polygonscan.com/address/${mint.record}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <p className="mint-record underlined">
+                    {mint.record.slice(0, 6)}...{mint.record.slice(-4)}
+                  </p>
+                </a>
+              </div>
+            );
+          })}
         </div>
-      );
-    }
+      </div>
+    );
   };
 
   // This will run any time currentAccount or network states are changed
@@ -369,12 +367,9 @@ const  App =  () =>  {
           />
 
           <div className="header-container">
-            <header>
-              <div className="title">
-                <p className="title">☕☀️ GM Name Service!</p>
-              </div>
+            <header className="navbar ">
               {/* Display a logo and wallet connection status*/}
-              <div className="right">
+              <div className="row header">
                 <img alt="Network logo" className="logo" src={network.includes("Polygon") ? polygonLogo : ethLogo} />
                 {currentAccount ? (
                   <p>
@@ -386,19 +381,22 @@ const  App =  () =>  {
                 )}
               </div>
             </header>
+            <div className="title">
+              <p>☕☀️ GM Name Service!</p>
+            </div>
           </div>
 
           {/* Hide the connect button if currentAccount isn't empty*/}
           {!currentAccount && renderNotConnectedContainer()}
 
           {/* Render the input form if an account is connected */}
-          {currentAccount && renderInputForm()}
+          {currentAccount && renderInputFormContainer()}
 
           {/* Render the wrong network container if the user is connected to the wrong network */}
           {currentAccount && network !== targetNetwork && renderWrongNetworkContainer()}
 
           {/* Render the mints if there are any */}
-          {mints && renderMints()}
+          {currentAccount && mints && mints.length > 0 && renderMintsContainer()}
 
           <div className="footer-container">
             <img alt="Twitter Logo" className="twitter-logo" src={twitterLogo} />
@@ -421,6 +419,6 @@ const  App =  () =>  {
       </div>
     </div>
   );
-}
+};
 
 export default App;

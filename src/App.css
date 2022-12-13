@@ -18,41 +18,40 @@ p {
 }
 
 .header-container {
-  padding-top: 30px;
+    padding-top: 30px;
 }
 
-header{
+header {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-  padding: 10px 10px 10px 10px;
+  justify-content: right;
+  padding: 10px 35px 10px 30px;
 }
 
 .title {
   margin: 0;
-  font-size: 35px;
+  font-size: 28px;
   font-weight: bold;
   color: white;
 }
-
 
 .subtitle {
   font-size: 25px;
   color: white;
 }
 
-.left{
+.left {
   text-align: left;
   margin-left: 10%;
 }
 
-.logo{
+.logo {
   width: 20px;
   height: 20px;
   margin-right: 10px;
 }
 
-.right{
+.right {
   display: flex;
   background: black;
   border-radius: 16px;
@@ -114,7 +113,7 @@ header{
   padding: 0px 2rem;
 }
 
-.mint-button:disabled{
+.mint-button:disabled {
   background: #550072;
   color: rgb(209, 209, 209);
   cursor: not-allowed;
@@ -126,14 +125,14 @@ header{
   min-height: 200px;
 }
 
-.mint-row{
+.mint-row {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   padding-top: 85px;
 }
 
-.edit-button{
+.edit-button {
   border-radius: 50%;
   cursor: pointer;
   margin-left: 3px;
@@ -143,10 +142,9 @@ header{
   background-color: transparent;
 }
 
-.edit-icon{
+.edit-icon {
   width: 12px;
 }
-
 
 .footer-container {
   display: flex;
@@ -160,11 +158,13 @@ header{
 }
 
 .gm-logo {
-  width: 435px;
-  height: 435px;
+  max-width: 300px;
   padding-top: 100px;
 }
 
+.buildspace-logo {
+  max-width: 250px;
+}
 .footer-text {
   color: white;
   font-size: 16px;
