@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import { NetworkName, networks, OpenSeaLink, PolyscanLink } from './constants/networks';
 
-import twitterLogo from './assets/twitter-logo.svg';
+import twitterLogo from "./assets/twitter-logo.svg"
 import polygonLogo from './assets/polygonlogo.png';
 import ethLogo from './assets/ethlogo.png';
 import gmLogo from "./assets/gm_.jpg";
@@ -22,7 +22,7 @@ import UseFetchMints from "./hooks/UseFetchMints";
 // Constants
 const TWITTER_HANDLE = "JeffyJeffNFT";
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
-const CONTRACT_ADDRESS = "0xE510E8512ca67ff99916153DFd41aBe3056BfCf6";
+const CONTRACT_ADDRESS = "0x3d61B40d99a9DAe338d0e70d26028Eb0C29D392D";
 const TLD = ".gm";
 
 const App = () => {
@@ -32,12 +32,12 @@ const App = () => {
   const [loading, setLoading] = useState(false);
   const [record, setRecord] = useState("");
   const [network, setNetwork] = useState("");
-  const { fetchMints, mints } = UseFetchMints(CONTRACT_ADDRESS);
 
   // Should be set to the network you want to use
   const [targetNetwork] = useState(NetworkName.PolygonMainnet.toString());
 
   // Custom hooks
+  const { fetchMints, mints } = UseFetchMints(CONTRACT_ADDRESS);
   const switchNetwork = UseNetworkConnectivity();
   const { toastSuccess, toastError, toastInfo } = UseToasts();
 
